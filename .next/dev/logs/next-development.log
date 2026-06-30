@@ -1,0 +1,13 @@
+{"timestamp":"00:00:01.412","source":"Server","level":"LOG","message":""}
+{"timestamp":"00:00:05.536","source":"Browser","level":"INFO","message":"%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold"}
+{"timestamp":"00:02:07.150","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir 'C:\\Users\\ahmet\\OneDrive\\Desktop\\kids-academy\\app'"}
+{"timestamp":"00:02:07.153","source":"Server","level":"ERROR","message":"⨯ \"unhandledRejection:\" Error: ENOENT: no such file or directory, scandir 'C:\\Users\\ahmet\\OneDrive\\Desktop\\kids-academy\\app'"}
+{"timestamp":"00:02:07.157","source":"Server","level":"ERROR","message":"⨯ \"unhandledRejection: \" Error: ENOENT: no such file or directory, scandir 'C:\\Users\\ahmet\\OneDrive\\Desktop\\kids-academy\\app'"}
+{"timestamp":"00:02:07.164","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir 'C:\\Users\\ahmet\\OneDrive\\Desktop\\kids-academy\\app'"}
+{"timestamp":"00:02:07.167","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir 'C:\\Users\\ahmet\\OneDrive\\Desktop\\kids-academy\\app'"}
+{"timestamp":"00:02:07.177","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir 'C:\\Users\\ahmet\\OneDrive\\Desktop\\kids-academy\\app'"}
+{"timestamp":"00:02:07.179","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir 'C:\\Users\\ahmet\\OneDrive\\Desktop\\kids-academy\\app'"}
+{"timestamp":"00:02:07.188","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir 'C:\\Users\\ahmet\\OneDrive\\Desktop\\kids-academy\\app'"}
+{"timestamp":"00:02:07.190","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir 'C:\\Users\\ahmet\\OneDrive\\Desktop\\kids-academy\\app'"}
+{"timestamp":"00:02:07.194","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir 'C:\\Users\\ahmet\\OneDrive\\Desktop\\kids-academy\\app'"}
+{"timestamp":"00:02:07.196","source":"Server","level":"ERROR","message":"Error: ENOENT: no such file or directory, scandir 'C:\\Users\\ahmet\\OneDrive\\Desktop\\kids-academy\\app'"}
