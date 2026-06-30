@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./portal.css";
+import "./topbar.css";
 
 export const metadata: Metadata = {
   title: "Kids Academy | Oyun Evi & Aktivite Merkezi",

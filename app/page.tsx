@@ -14,10 +14,10 @@ export default function Home() {
 
   return (
     <main>
-      <div className="topline">Yeni dönem oyun grubu kayıtları başladı <a href="#basvuru">Bilgi al <Arrow /></a></div>
+      <div className="topline"><div className="toplineInner"><span>Yeni dönem oyun grubu kayıtları başladı <a href="#basvuru">Bilgi al <Arrow /></a></span><div className="topAuth"><a href="/veli">Veli Girişi</a><a href="/admin">Admin Girişi</a></div></div></div>
       <nav className="nav shell">
         <a className="logo" href="#"><span>KA</span><b>Kids Academy<small>oyun evi & aktivite merkezi</small></b></a>
-        <div className="links"><a href="#programlar">Programlar</a><a href="#tur">Kurum Turu</a><a href="#hakkimizda">Biz Kimiz?</a><a href="#sss">SSS</a></div>
+        <div className="links"><a href="#programlar">Programlar</a><a href="#tur">Kurum Turu</a><a href="#hakkimizda">Biz Kimiz?</a><a href="/veli">Deneme Sonuçları</a></div>
         <a className="navCta" href="#basvuru">Ön başvuru <Arrow /></a>
       </nav>
 
@@ -73,7 +73,7 @@ export default function Home() {
       </section>
 
       <section className="dashboard shell">
-        <div className="dashCopy"><span className="sectionNo">05 — VELİ PANELİ</span><h2>Siz yanında değilken de<br/><em>gününe yakın olun.</em></h2><p>Günlük kazanımlar, atölye fotoğrafları, ödev takibi ve haftalık deneme sonuçları tek güvenli panelde.</p><div className="checkList"><span>✓ Günlük kısa gelişim notları</span><span>✓ Haftalık deneme sonuçları</span><span>✓ Etkinlik fotoğrafları</span></div><button onClick={()=>setSent("panel")}>Örnek paneli görüntüle <Arrow /></button></div>
+        <div className="dashCopy"><span className="sectionNo">05 — DENEME SONUÇLARI</span><h2>Gelişimini adım adım<br/><em>birlikte izleyin.</em></h2><p>Size özel kullanıcı adı ve şifreyle çocuğunuzun deneme sonuçlarını, ders analizlerini ve zaman içindeki puan gelişimini güvenle görüntüleyin.</p><div className="checkList"><span>✓ Deneme bazında doğru, yanlış ve boşlar</span><span>✓ Derslere göre çalışılacak konular</span><span>✓ Zaman içindeki gelişim grafiği</span></div><a className="primary" href="/veli">Sonuç sistemine gir <Arrow /></a></div>
         <div className="phone"><div className="phoneTop"><span>9:41</span><b>kids.</b><span>●●●</span></div><div className="hello"><small>Günaydın,</small><h3>Defne bugün harika! ☀</h3></div><div className="dailyCard"><div className="dailyImg">🎨</div><small>BUGÜN · 11:40</small><h4>Renkleri karıştırdık</h4><p>Defne ana renklerden yeni renkler üretirken sırasını sabırla bekledi.</p><div><span>✦ Merak</span><span>♡ Paylaşım</span></div></div><div className="score"><span>Haftalık deneme</span><b>18 / 20</b><i><em /></i><small>Geçen haftaya göre +2 doğru</small></div></div>
       </section>
 
@@ -91,7 +91,6 @@ export default function Home() {
       <footer><div className="shell footerTop"><a className="logo inverseLogo" href="#"><span>KA</span><b>Kids Academy<small>oyun evi & aktivite merkezi</small></b></a><div><small>HIZLI MENÜ</small><a href="#programlar">Programlar</a><a href="#tur">Kurum Turu</a><a href="#basvuru">Ön Başvuru</a></div><div><small>İLETİŞİM</small><p>Osmaniye, Türkiye</p><p>0 (5__) ___ __ __</p><p>merhaba@kidsacademy.com</p></div><div><small>SOSYAL</small><a href="#">Instagram ↗</a><a href="#">Facebook ↗</a></div></div><div className="shell footerBottom"><span>© 2026 Kids Academy</span><span>Sevgiyle büyütüldü ♥</span></div></footer>
 
       <a className="whatsapp" href="https://wa.me/905000000000" target="_blank" rel="noreferrer" aria-label="WhatsApp ile iletişime geç"><b>WhatsApp</b><span>●</span></a>
-      {sent==="panel"&&<div className="modal" onClick={()=>setSent("")}><div onClick={e=>e.stopPropagation()}><button onClick={()=>setSent("")}>×</button><span>VELİ PANELİ DEMOSU</span><h3>Güvenli alan, gerçek bağ.</h3><p>Bu bölüm canlı sistemde veliye özel şifre, KVKK onayı ve güvenli fotoğraf erişimiyle çalışır. Tasarımda günlük notlar, haftalık denemeler ve gelişim özeti hazırlandı.</p><a href="#basvuru" onClick={()=>setSent("")}>Bilgi almak istiyorum <Arrow /></a></div></div>}
     </main>
   );
 }
