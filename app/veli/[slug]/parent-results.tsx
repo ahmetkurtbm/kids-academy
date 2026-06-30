@@ -4,6 +4,7 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 
 type Subject={subject_name:string;correct_count:number;wrong_count:number;blank_count:number;review_topics?:string};
 type Exam={id:string;title:string;exam_date:string;score:number;note?:string;exam_subjects:Subject[]};
+type Activity={id:string;title:string;event_date:string;summary:string;details?:string;image_url?:string};
 
 function ProgressChart({ exams }: { exams: Exam[] }) {
   if (!exams.length) return <div className="emptyChart">Grafik için henüz sonuç bulunmuyor.</div>;
@@ -14,7 +15,7 @@ function ProgressChart({ exams }: { exams: Exam[] }) {
 }
 
 export default function ParentResults({ slug }: { slug:string }) {
-  const [data,setData]=useState<{parent:{parent_name:string;student_name:string};exams:Exam[]}|null>(null);
+  const [data,setData]=useState<{parent:{parent_name:string;student_name:string};exams:Exam[];activities:Activity[]}|null>(null);
   const [ready,setReady]=useState(false);
   const [error,setError]=useState("");
   const load=useCallback(async()=>{const r=await fetch(`/api/veli/results?slug=${encodeURIComponent(slug)}`,{cache:"no-store"});if(r.status===401){setData(null);setReady(true);return}const j=await r.json();if(!r.ok)setError(j.error);else setData(j);setReady(true)},[slug]);
@@ -33,6 +34,8 @@ export default function ParentResults({ slug }: { slug:string }) {
 
   return <main className="resultsPage"><header className="resultsNav"><a className="portalLogo" href="/">KA <b>Kids Academy</b></a><div><span>{data.parent.student_name}</span><button onClick={async()=>{await fetch("/api/veli/logout",{method:"POST"});location.reload()}}>Çıkış</button></div></header><div className="resultsShell">
     <section className="resultHero"><div><small>VELİ SONUÇ SİSTEMİ</small><h1>Merhaba, {data.parent.parent_name}.</h1><p>{data.parent.student_name}&apos;ın deneme gelişimini, ders performansını ve çalışılması gereken konuları burada görebilirsiniz.</p></div></section>
+
+    {data.activities?.length>0&&<section className="parentActivities"><div className="resultSectionHead"><div><small>SİZE ÖZEL PAYLAŞIMLAR</small><h2>{data.parent.student_name}&apos;ın etkinlikleri</h2></div><span>{data.activities.length} paylaşım</span></div><div className="parentActivityGrid">{data.activities.map(activity=><article key={activity.id}>{activity.image_url&&<img src={activity.image_url} alt={`${activity.title} etkinliği`} />}<div><time>{new Date(`${activity.event_date}T12:00:00`).toLocaleDateString("tr-TR",{day:"numeric",month:"long",year:"numeric"})}</time><h3>{activity.title}</h3><p>{activity.summary}</p>{activity.details&&<small>{activity.details}</small>}</div></article>)}</div></section>}
 
     <section className="resultMetrics"><article><small>SON PUAN</small><b>{latest?.score??"—"}</b><span>{latest?latest.title:"Sonuç bekleniyor"}</span></article><article><small>EN YÜKSEK</small><b>{exams.length?highest.toFixed(0):"—"}</b><span>Kişisel en iyi puan</span></article><article><small>ORTALAMA</small><b>{exams.length?average.toFixed(1):"—"}</b><span>{exams.length} deneme ortalaması</span></article><article className={change!==null&&change>=0?"positiveMetric":""}><small>SON DEĞİŞİM</small><b>{change===null?"—":`${change>=0?"+":""}${change.toFixed(1)}`}</b><span>{change===null?"İki sonuç sonrası hesaplanır":change>=0?"Yükseliş devam ediyor":"Birlikte toparlayabiliriz"}</span></article></section>
 

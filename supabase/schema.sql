@@ -52,12 +52,30 @@ create table if not exists public.events (
   image_path text,
   image_url text,
   published boolean not null default true,
+  share_scope text not null default 'site' check (share_scope in ('site', 'parent')),
+  parent_id uuid references public.parent_accounts(id) on delete cascade,
   created_at timestamptz not null default now()
 );
 
 alter table public.events enable row level security;
 revoke all on public.events from anon, authenticated;
 create index if not exists events_date_idx on public.events(event_date desc, created_at desc);
+create index if not exists events_parent_idx on public.events(parent_id, event_date desc);
+create index if not exists events_scope_date_idx on public.events(share_scope, event_date desc, created_at desc);
+
+create table if not exists public.announcements (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  body text not null,
+  image_path text,
+  image_url text,
+  published boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+alter table public.announcements enable row level security;
+revoke all on public.announcements from anon, authenticated;
+create index if not exists announcements_created_idx on public.announcements(created_at desc);
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values ('event-images', 'event-images', true, 4194304, array['image/jpeg','image/png','image/webp'])

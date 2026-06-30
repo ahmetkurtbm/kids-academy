@@ -24,7 +24,7 @@ export default function ContactWhatsAppForm() {
   return <form className="contactForm" onSubmit={sendDetailedMessage}>
     <label>Veli adı soyadı<input name="parentName" required placeholder="Adınız ve soyadınız"/></label>
     <div className="two"><label>Çocuğun adı<input name="childName" required placeholder="Çocuğunuzun adı"/></label><label>Çocuğun yaşı<input name="childAge" required type="number" min="4" max="18" placeholder="Yaşı"/></label></div>
-    <div className="two"><label>Sınıfı<input name="schoolClass" placeholder="Örn. 3. sınıf"/></label><label>İlgilenilen program<select name="program" required defaultValue=""><option value="" disabled>Program seçin</option><option>Ödev Takip</option><option>Konu Anlatımı</option><option>Jimnastik</option><option>Yaz Okulu</option><option>Atölye & Etkinlikler</option></select></label></div>
+    <div className="two"><label>Sınıfı<input name="schoolClass" placeholder="Örn. 3. sınıf"/></label><label>İlgilenilen program<select name="program" required defaultValue=""><option value="" disabled>Program seçin</option><option>Ödev Takip</option><option>Konu Anlatımı</option><option>Okul Öncesi Etkinlik</option><option>Yaz Okulu</option><option>Atölye & Etkinlikler</option></select></label></div>
     <label>Eklemek istediğiniz not<textarea name="note" rows={3} placeholder="İhtiyacınızı kısaca yazabilirsiniz"/></label>
     <button type="submit"><WhatsAppIcon/> WhatsApp&apos;tan iletişime geç</button>
   </form>;

@@ -1,0 +1,30 @@
+.homeV2 .brandLogo {
+  display: block;
+  flex: 0 0 auto;
+  line-height: 0;
+}
+
+.homeV2 .brandLogo img {
+  display: block;
+  width: 78px;
+  height: 76px;
+  object-fit: contain;
+}
+
+.homeV2 .footerBrandLogo img {
+  width: 118px;
+  height: 144px;
+  border-radius: 6px;
+}
+
+@media (max-width: 600px) {
+  .homeV2 .brandLogo img {
+    width: 62px;
+    height: 60px;
+  }
+
+  .homeV2 .footerBrandLogo img {
+    width: 104px;
+    height: 127px;
+  }
+}

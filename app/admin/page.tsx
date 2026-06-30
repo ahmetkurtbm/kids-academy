@@ -5,7 +5,8 @@ import { FormEvent, useCallback, useEffect, useState } from "react";
 type Parent = { id: string; slug: string; parent_name: string; student_name: string; active: boolean };
 type Subject = { id?: string; subject_name: string; correct_count: number; wrong_count: number; blank_count: number; review_topics?: string };
 type Exam = { id: string; parent_id: string; title: string; exam_date: string; score: number; note?: string; exam_subjects: Subject[] };
-type EventItem = { id: string; title: string; event_date: string; summary: string; details?: string; image_path?: string; image_url?: string; published: boolean };
+type EventItem = { id: string; title: string; event_date: string; summary: string; details?: string; image_path?: string; image_url?: string; published: boolean; share_scope: "site" | "parent"; parent_id?: string };
+type Announcement = { id: string; title: string; body: string; image_path?: string; image_url?: string; published: boolean; created_at: string };
 const subjectNames = ["Türkçe", "Matematik", "Fen Bilimleri", "Sosyal Bilgiler", "İngilizce"];
 const emptySubjects = () => subjectNames.map((name) => ({ name, correct: 0, wrong: 0, blank: 0, topics: "" }));
 
@@ -15,16 +16,19 @@ export default function AdminPage() {
   const [parents, setParents] = useState<Parent[]>([]);
   const [exams, setExams] = useState<Exam[]>([]);
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [message, setMessage] = useState("");
   const [subjects, setSubjects] = useState(emptySubjects);
   const [savingEvent, setSavingEvent] = useState(false);
+  const [savingAnnouncement, setSavingAnnouncement] = useState(false);
+  const [shareScope, setShareScope] = useState<"site" | "parent">("site");
 
   const load = useCallback(async () => {
     const response = await fetch("/api/admin/data", { cache: "no-store" });
     if (response.status === 401) { setLoggedIn(false); setReady(true); return; }
     const data = await response.json();
     if (!response.ok) { setMessage(data.error); setReady(true); return; }
-    setParents(data.parents || []); setExams(data.exams || []); setEvents(data.events || []); if (data.eventSetupRequired) setMessage("Etkinlik özelliğini açmak için Supabase SQL Editor'da 20260630_add_events.sql dosyasını çalıştırın."); setLoggedIn(true); setReady(true);
+    setParents(data.parents || []); setExams(data.exams || []); setEvents(data.events || []); setAnnouncements(data.announcements || []); if (data.contentSetupRequired) setMessage("Duyuru ve veliye özel etkinlik özelliği için Supabase SQL Editor'da 20260630_add_announcements_and_private_events.sql dosyasını çalıştırın."); setLoggedIn(true); setReady(true);
   }, []);
   useEffect(() => { load(); }, [load]);
 
@@ -58,8 +62,25 @@ export default function AdminPage() {
       const response = await fetch("/api/admin/events", { method: "POST", body: new FormData(formElement) });
       const data = await response.json();
       if (!response.ok) return setMessage(data.error);
-      formElement.reset(); setMessage("Etkinlik yayınlandı."); await load();
+      formElement.reset(); setShareScope("site"); setMessage(shareScope === "parent" ? "Etkinlik seçilen veliyle paylaşıldı." : "Etkinlik sitede yayınlandı."); await load();
     } finally { setSavingEvent(false); }
+  }
+
+  async function createAnnouncement(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setMessage(""); setSavingAnnouncement(true);
+    const formElement = event.currentTarget;
+    try {
+      const response = await fetch("/api/admin/announcements", { method: "POST", body: new FormData(formElement) });
+      const data = await response.json();
+      if (!response.ok) return setMessage(data.error);
+      formElement.reset(); setMessage("Duyuru yayınlandı."); await load();
+    } finally { setSavingAnnouncement(false); }
+  }
+
+  async function removeAnnouncement(id: string) {
+    if (!confirm("Bu duyuru ve fotoğrafı silinsin mi?")) return;
+    const response = await fetch("/api/admin/announcements", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+    const data = await response.json(); if (!response.ok) return setMessage(data.error); setMessage("Duyuru silindi."); await load();
   }
 
   async function removeEvent(id: string) {
@@ -78,11 +99,12 @@ export default function AdminPage() {
   if (!loggedIn) return <main className="portalCenter"><form className="loginCard" onSubmit={login}><a className="portalLogo" href="/">KA <b>Kids Academy</b></a><span>YÖNETİM PANELİ</span><h1>Hoş geldiniz.</h1><p>İçerikleri yönetmek için admin şifrenizi girin.</p><label>Admin şifresi<input name="password" type="password" required autoFocus /></label><button>Panele giriş yap →</button>{message && <div className="formMessage error">{message}</div>}</form></main>;
 
   return <main className="adminShell">
-    <aside className="adminSidebar"><a className="portalLogo inversePortal" href="/">KA <b>Kids Academy</b></a><nav><a href="#overview">Genel Bakış</a><a href="#events">Etkinlikler</a><a href="#new-exam">Deneme Girişi</a><a href="#parents">Veli Hesapları</a></nav><button onClick={async()=>{await fetch("/api/admin/logout",{method:"POST"});location.reload();}}>Çıkış yap</button></aside>
+    <aside className="adminSidebar"><a className="portalLogo inversePortal" href="/">KA <b>Kids Academy</b></a><nav><a href="#overview">Genel Bakış</a><a href="#announcements">Duyurular</a><a href="#events">Etkinlikler</a><a href="#new-exam">Deneme Girişi</a><a href="#parents">Veli Hesapları</a></nav><button onClick={async()=>{await fetch("/api/admin/logout",{method:"POST"});location.reload();}}>Çıkış yap</button></aside>
     <div className="adminMain"><header><div><small>YÖNETİM PANELİ</small><h1>Merhaba 👋</h1></div><a href="/" target="_blank">Siteyi görüntüle ↗</a></header>{message && <div className="formMessage">{message}</div>}
-      <section id="overview" className="stats statsFour"><article><small>VELİ HESABI</small><b>{parents.length}</b></article><article><small>TOPLAM DENEME</small><b>{exams.length}</b></article><article><small>ETKİNLİK</small><b>{events.length}</b></article><article><small>SON DENEME</small><b className="smallStat">{exams[0]?.exam_date ? new Date(exams[0].exam_date).toLocaleDateString("tr-TR") : "—"}</b></article></section>
-      <section id="events" className="adminColumns eventAdminColumns"><div className="adminCard"><div className="cardHead"><div><small>ETKİNLİK YAYINLA</small><h2>Yeni etkinlik ekle</h2></div></div><form className="adminForm" onSubmit={createEvent}><label>Etkinlik başlığı<input name="title" required placeholder="Örn. Renkli Bilim Atölyesi" /></label><label>Etkinlik tarihi<input name="eventDate" type="date" required /></label><label>Kısa açıklama<textarea name="summary" rows={2} required maxLength={220} placeholder="Ana sayfada görünecek kısa açıklama" /></label><label>Detaylar<textarea name="details" rows={4} placeholder="Etkinliğin içeriği, kazanımları ve diğer bilgiler" /></label><label>Etkinlik fotoğrafı<input className="fileInput" name="image" type="file" accept="image/jpeg,image/png,image/webp" /><small>JPG, PNG veya WebP · En fazla 4 MB</small></label><button className="adminPrimary" disabled={savingEvent}>{savingEvent ? "Yükleniyor…" : "Etkinliği yayınla →"}</button></form></div>
-        <div className="adminCard"><div className="cardHead"><div><small>YAYINDAKİ ETKİNLİKLER</small><h2>Son etkinlikler</h2></div></div><div className="eventAdminList">{events.length===0?<div className="adminEmpty"><b>Henüz etkinlik yok.</b><span>İlk etkinliğinizi soldaki formdan yayınlayın.</span></div>:events.map(item=><article key={item.id}>{item.image_url?<img src={item.image_url} alt="" />:<div className="eventPlaceholder">✦</div>}<div><time>{new Date(item.event_date).toLocaleDateString("tr-TR")}</time><b>{item.title}</b><span>{item.summary}</span></div><button onClick={()=>removeEvent(item.id)}>Sil</button></article>)}</div></div>
+      <section id="overview" className="stats statsFive"><article><small>VELİ HESABI</small><b>{parents.length}</b></article><article><small>TOPLAM DENEME</small><b>{exams.length}</b></article><article><small>DUYURU</small><b>{announcements.length}</b></article><article><small>ETKİNLİK</small><b>{events.length}</b></article><article><small>SON DENEME</small><b className="smallStat">{exams[0]?.exam_date ? new Date(exams[0].exam_date).toLocaleDateString("tr-TR") : "—"}</b></article></section>
+      <section id="announcements" className="adminColumns eventAdminColumns"><div className="adminCard"><div className="cardHead"><div><small>DUYURU YAYINLA</small><h2>Yeni duyuru ekle</h2></div></div><form className="adminForm" onSubmit={createAnnouncement}><label>Duyuru başlığı<input name="title" required placeholder="Örn. Yaz Okulumuz Başlıyor" /></label><label>Geniş açıklama<textarea name="body" rows={7} required placeholder="Duyurunun tüm detaylarını yazın…" /></label><label>Duyuru fotoğrafı <span className="optionalLabel">(isteğe bağlı)</span><input className="fileInput" name="image" type="file" accept="image/jpeg,image/png,image/webp" /><small>Fotoğraf eklenirse ana sayfada metnin sağında küçük gösterilir.</small></label><button className="adminPrimary" disabled={savingAnnouncement}>{savingAnnouncement ? "Yükleniyor…" : "Duyuruyu yayınla →"}</button></form></div><div className="adminCard"><div className="cardHead"><div><small>YAYINDAKİ DUYURULAR</small><h2>Son duyurular</h2></div></div><div className="eventAdminList">{announcements.length===0?<div className="adminEmpty"><b>Henüz duyuru yok.</b><span>İlk duyurunuzu soldaki formdan yayınlayın.</span></div>:announcements.map(item=><article key={item.id}>{item.image_url?<img src={item.image_url} alt="" />:<div className="eventPlaceholder">!</div>}<div><time>{new Date(item.created_at).toLocaleDateString("tr-TR")}</time><b>{item.title}</b><span>{item.body}</span></div><button onClick={()=>removeAnnouncement(item.id)}>Sil</button></article>)}</div></div></section>
+      <section id="events" className="adminColumns eventAdminColumns"><div className="adminCard"><div className="cardHead"><div><small>ETKİNLİK PAYLAŞ</small><h2>Yeni etkinlik ekle</h2></div></div><form className="adminForm" onSubmit={createEvent}><label>Etkinlik başlığı<input name="title" required placeholder="Örn. Renkli Bilim Atölyesi" /></label><label>Etkinlik tarihi<input name="eventDate" type="date" required /></label><fieldset className="shareChooser"><legend>Paylaşım yeri</legend><label className={shareScope==="site"?"selected":""}><input type="radio" name="shareScope" value="site" checked={shareScope==="site"} onChange={()=>setShareScope("site")} /><b>Siteye paylaşım</b><span>Etkinlik ana sayfada herkese görünür.</span></label><label className={shareScope==="parent"?"selected":""}><input type="radio" name="shareScope" value="parent" checked={shareScope==="parent"} onChange={()=>setShareScope("parent")} /><b>Veliyle paylaşım</b><span>Yalnızca seçilen öğrencinin veli panelinde görünür.</span></label></fieldset>{shareScope==="parent"&&<label>Öğrenci<select name="parentId" required defaultValue=""><option value="" disabled>Öğrenci seçin</option>{parents.map(p=><option key={p.id} value={p.id}>{p.student_name} · {p.parent_name}</option>)}</select></label>}<label>Kısa açıklama<textarea name="summary" rows={2} required maxLength={220} placeholder={shareScope==="site"?"Ana sayfada görünecek kısa açıklama":"Veli panelinde görünecek kısa açıklama"} /></label><label>Detaylar<textarea name="details" rows={4} placeholder="Etkinliğin içeriği, kazanımları ve diğer bilgiler" /></label><label>Etkinlik fotoğrafı<input className="fileInput" name="image" type="file" accept="image/jpeg,image/png,image/webp" /><small>JPG, PNG veya WebP · En fazla 4 MB</small></label><button className="adminPrimary" disabled={savingEvent}>{savingEvent ? "Yükleniyor…" : shareScope==="site"?"Sitede yayınla →":"Veliyle paylaş →"}</button></form></div>
+        <div className="adminCard"><div className="cardHead"><div><small>PAYLAŞILAN ETKİNLİKLER</small><h2>Son etkinlikler</h2></div></div><div className="eventAdminList">{events.length===0?<div className="adminEmpty"><b>Henüz etkinlik yok.</b><span>İlk etkinliğinizi soldaki formdan paylaşın.</span></div>:events.map(item=><article key={item.id}>{item.image_url?<img src={item.image_url} alt="" />:<div className="eventPlaceholder">✦</div>}<div><time>{new Date(item.event_date).toLocaleDateString("tr-TR")} · <em className={`scopeBadge ${item.share_scope}`}>{item.share_scope==="parent"?"VELİ":"SİTE"}</em></time><b>{item.title}</b><span>{item.share_scope==="parent"?`${parents.find(p=>p.id===item.parent_id)?.student_name||"Öğrenci"} · ${item.summary}`:item.summary}</span></div><button onClick={()=>removeEvent(item.id)}>Sil</button></article>)}</div></div>
       </section>
       <section id="new-exam" className="adminCard"><div className="cardHead"><div><small>DENEME SONUCU</small><h2>Yeni sonuç ekle</h2></div><p>Her ders için doğru, yanlış, boş ve çalışılması gereken konuları yazın.</p></div>
         <form onSubmit={createExam} className="adminForm"><div className="formGrid four"><label>Öğrenci<select name="parentId" required defaultValue=""><option value="" disabled>Öğrenci seçin</option>{parents.map(p=><option key={p.id} value={p.id}>{p.student_name} · {p.slug}</option>)}</select></label><label>Deneme adı<input name="title" required placeholder="Türkiye Geneli Deneme 3" /></label><label>Tarih<input name="examDate" type="date" required /></label><label>Puan (0–100)<input name="score" type="number" min="0" max="100" step="0.01" required /></label></div>
