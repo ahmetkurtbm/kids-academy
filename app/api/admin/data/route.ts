@@ -12,12 +12,13 @@ export async function GET() {
   if (!(await authorized())) return NextResponse.json({ error: "Yetkisiz." }, { status: 401 });
   try {
     const db = getSupabaseAdmin();
-    const [{ data: parents, error: pError }, { data: exams, error: eError }] = await Promise.all([
+    const [{ data: parents, error: pError }, { data: exams, error: eError }, { data: events, error: eventError }] = await Promise.all([
       db.from("parent_accounts").select("id,slug,parent_name,student_name,active,created_at").order("student_name"),
       db.from("exams").select("id,parent_id,title,exam_date,score,note,exam_subjects(id,subject_name,correct_count,wrong_count,blank_count,review_topics)").order("exam_date", { ascending: false }),
+      db.from("events").select("id,title,event_date,summary,details,image_path,image_url,published,created_at").order("event_date", { ascending: false }).order("created_at", { ascending: false }),
     ]);
     if (pError || eError) throw pError || eError;
-    return NextResponse.json({ parents, exams });
+    return NextResponse.json({ parents, exams, events: eventError ? [] : events, eventSetupRequired: Boolean(eventError) });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Veriler alınamadı." }, { status: 500 });
   }
